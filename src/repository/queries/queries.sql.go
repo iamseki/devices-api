@@ -7,7 +7,18 @@ package queries
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const deleteDevice = `-- name: DeleteDevice :exec
+DELETE FROM devices WHERE id = $1
+`
+
+func (q *Queries) DeleteDevice(ctx context.Context, db DBTX, id int32) error {
+	_, err := db.Exec(ctx, deleteDevice, id)
+	return err
+}
 
 const getDevice = `-- name: GetDevice :one
 SELECT id, name, brand, state, created_at FROM devices WHERE id = $1
@@ -24,4 +35,80 @@ func (q *Queries) GetDevice(ctx context.Context, db DBTX, id int32) (*Device, er
 		&i.CreatedAt,
 	)
 	return &i, err
+}
+
+const insertDevice = `-- name: InsertDevice :exec
+INSERT INTO devices (name, brand, state) VALUES ($1, $2, $3)
+`
+
+type InsertDeviceParams struct {
+	Name  pgtype.Text `db:"name" json:"name"`
+	Brand pgtype.Text `db:"brand" json:"brand"`
+	State string      `db:"state" json:"state"`
+}
+
+func (q *Queries) InsertDevice(ctx context.Context, db DBTX, arg *InsertDeviceParams) error {
+	_, err := db.Exec(ctx, insertDevice, arg.Name, arg.Brand, arg.State)
+	return err
+}
+
+const listDevices = `-- name: ListDevices :many
+SELECT 
+  id, name, brand, state, created_at 
+FROM 
+  devices
+WHERE
+  brand = $1 OR state = $2
+`
+
+type ListDevicesParams struct {
+	Brand pgtype.Text `db:"brand" json:"brand"`
+	State string      `db:"state" json:"state"`
+}
+
+func (q *Queries) ListDevices(ctx context.Context, db DBTX, arg *ListDevicesParams) ([]*Device, error) {
+	rows, err := db.Query(ctx, listDevices, arg.Brand, arg.State)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Device
+	for rows.Next() {
+		var i Device
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Brand,
+			&i.State,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateDevice = `-- name: UpdateDevice :exec
+UPDATE devices SET name = $2, brand = $3, state = $4 WHERE id = $1
+`
+
+type UpdateDeviceParams struct {
+	ID    int32       `db:"id" json:"id"`
+	Name  pgtype.Text `db:"name" json:"name"`
+	Brand pgtype.Text `db:"brand" json:"brand"`
+	State string      `db:"state" json:"state"`
+}
+
+func (q *Queries) UpdateDevice(ctx context.Context, db DBTX, arg *UpdateDeviceParams) error {
+	_, err := db.Exec(ctx, updateDevice,
+		arg.ID,
+		arg.Name,
+		arg.Brand,
+		arg.State,
+	)
+	return err
 }

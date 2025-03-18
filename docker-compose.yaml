@@ -1,0 +1,15 @@
+version: "3.3"
+services:
+  postgres:
+    image: postgres:17.2
+    environment:
+      POSTGRES_USER: devices
+      POSTGRES_PASSWORD: devices
+      POSTGRES_DB: devices
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./_volume-postgres:/var/lib/postgresql/data
+
+volumes:
+  _volume-postgres:

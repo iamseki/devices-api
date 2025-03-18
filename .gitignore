@@ -1,0 +1,12 @@
+# scripts
+run.sh
+.env.*sh
+.env.debug
+# test
+last-results.html
+_volume-postgres
+
+# vscode
+.vscode
+__debug_*
+access.log

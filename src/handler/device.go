@@ -89,6 +89,19 @@ func (h *Handler) UpdateDevice(c echo.Context) error {
 		return err
 	}
 
+	currentDevice, err := h.Repository.Queries.GetDevice(ctx, conn, int32(id))
+	if err != nil {
+		return err
+	}
+
+	if currentDevice.State == "IN_USE" && (device.Name.String != "" || device.Brand.String != "") {
+		return echo.NewHTTPError(http.StatusBadRequest, "Device in use")
+	}
+
+	if device.CreationTime.Time.String() != "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "Cannot update creation time")
+	}
+
 	err = h.Repository.Queries.UpdateDevice(ctx, conn, &queries.UpdateDeviceParams{Name: device.Name, Brand: device.Brand, State: device.State, ID: int32(id)})
 	if err != nil {
 		return err
@@ -108,6 +121,15 @@ func (h *Handler) DeleteDevice(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return err
+	}
+
+	device, err := h.Repository.Queries.GetDevice(ctx, conn, int32(id))
+	if err != nil {
+		return err
+	}
+
+	if device.State == "IN_USE" {
+		return echo.NewHTTPError(http.StatusBadRequest, "Device in use")
 	}
 
 	err = h.Repository.Queries.DeleteDevice(ctx, conn, int32(id))

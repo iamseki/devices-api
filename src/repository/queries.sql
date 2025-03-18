@@ -1,13 +1,13 @@
 -- name: GetDevice :one
-SELECT id, name, brand, state, created_at FROM devices WHERE id = $1;
+SELECT id, name, brand, state, creation_time FROM devices WHERE id = $1;
 
 -- name: ListDevices :many
 SELECT 
-  id, name, brand, state, created_at 
+  id, name, brand, state, creation_time
 FROM 
   devices
 WHERE
-  brand = $1 OR state = $2;
+  brand = $1 OR state = $2 OR name = $3;
 
 -- name: InsertDevice :exec
 INSERT INTO devices (name, brand, state) VALUES ($1, $2, $3);

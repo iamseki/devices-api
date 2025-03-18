@@ -21,7 +21,7 @@ func (q *Queries) DeleteDevice(ctx context.Context, db DBTX, id int32) error {
 }
 
 const getDevice = `-- name: GetDevice :one
-SELECT id, name, brand, state, created_at FROM devices WHERE id = $1
+SELECT id, name, brand, state, creation_time FROM devices WHERE id = $1
 `
 
 func (q *Queries) GetDevice(ctx context.Context, db DBTX, id int32) (*Device, error) {
@@ -32,7 +32,7 @@ func (q *Queries) GetDevice(ctx context.Context, db DBTX, id int32) (*Device, er
 		&i.Name,
 		&i.Brand,
 		&i.State,
-		&i.CreatedAt,
+		&i.CreationTime,
 	)
 	return &i, err
 }
@@ -54,20 +54,21 @@ func (q *Queries) InsertDevice(ctx context.Context, db DBTX, arg *InsertDevicePa
 
 const listDevices = `-- name: ListDevices :many
 SELECT 
-  id, name, brand, state, created_at 
+  id, name, brand, state, creation_time
 FROM 
   devices
 WHERE
-  brand = $1 OR state = $2
+  brand = $1 OR state = $2 OR name = $3
 `
 
 type ListDevicesParams struct {
 	Brand pgtype.Text `db:"brand" json:"brand"`
 	State string      `db:"state" json:"state"`
+	Name  pgtype.Text `db:"name" json:"name"`
 }
 
 func (q *Queries) ListDevices(ctx context.Context, db DBTX, arg *ListDevicesParams) ([]*Device, error) {
-	rows, err := db.Query(ctx, listDevices, arg.Brand, arg.State)
+	rows, err := db.Query(ctx, listDevices, arg.Brand, arg.State, arg.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +81,7 @@ func (q *Queries) ListDevices(ctx context.Context, db DBTX, arg *ListDevicesPara
 			&i.Name,
 			&i.Brand,
 			&i.State,
-			&i.CreatedAt,
+			&i.CreationTime,
 		); err != nil {
 			return nil, err
 		}

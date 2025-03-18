@@ -9,9 +9,9 @@ import (
 )
 
 type Device struct {
-	ID        int32              `db:"id" json:"id"`
-	Name      pgtype.Text        `db:"name" json:"name"`
-	Brand     pgtype.Text        `db:"brand" json:"brand"`
-	State     string             `db:"state" json:"state"`
-	CreatedAt pgtype.Timestamptz `db:"created_at" json:"created_at"`
+	ID           int32              `db:"id" json:"id"`
+	Name         pgtype.Text        `db:"name" json:"name"`
+	Brand        pgtype.Text        `db:"brand" json:"brand"`
+	State        string             `db:"state" json:"state"`
+	CreationTime pgtype.Timestamptz `db:"creation_time" json:"creation_time"`
 }

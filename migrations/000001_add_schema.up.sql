@@ -4,5 +4,5 @@ CREATE TABLE IF NOT EXISTS
     name TEXT,
     brand TEXT,
     state TEXT DEFAULT 'AVAILABLE' NOT NULL CHECK (state IN ('AVAILABLE', 'IN_USE', 'INACTIVE')),
-    created_at timestamptz NOT NULL DEFAULT NOW()
+    creation_time timestamptz NOT NULL DEFAULT NOW()
   );

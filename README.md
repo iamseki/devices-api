@@ -4,3 +4,13 @@
 - go install github.com/swaggo/swag/cmd/swag@latest 
   - swag init
 - make run-migrations
+
+
+// TODO:
+- integration test []
+  - including specific use cases []
+- refactor []
+- k6
+- indexes
+- telemetry
+- readme

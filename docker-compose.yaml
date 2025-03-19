@@ -27,3 +27,17 @@ services:
       "-database", "postgres://devices:devices@postgres:5432/devices?sslmode=disable",
       "up"
     ]
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URI: "postgres://devices:devices@postgres:5432/devices?sslmode=disable"
+    ports:
+      - "8081:8081"

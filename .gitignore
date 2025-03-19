@@ -10,3 +10,5 @@ _volume-postgres
 .vscode
 __debug_*
 access.log
+
+devices-api

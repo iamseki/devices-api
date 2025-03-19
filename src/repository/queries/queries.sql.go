@@ -58,6 +58,7 @@ WHERE
   (brand = $1 OR $1 = '') AND
   (state = $2 OR $2 = '') AND
   (name = $3 OR $3 = '')
+LIMIT 1000
 `
 
 type ListDevicesParams struct {

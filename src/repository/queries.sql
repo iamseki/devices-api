@@ -9,7 +9,8 @@ FROM
 WHERE
   (brand = $1 OR $1 = '') AND
   (state = $2 OR $2 = '') AND
-  (name = $3 OR $3 = '');
+  (name = $3 OR $3 = '')
+LIMIT 1000;
 
 -- name: InsertDevice :exec
 INSERT INTO devices (name, brand) VALUES ($1, $2);

@@ -20,7 +20,7 @@ lint:
 	golangci-lint run ./...
 
 test:
-	go test ./test/usecase -v
+	go test ./src/domain -v
 
 generate-code-sql:
 	sqlc generate

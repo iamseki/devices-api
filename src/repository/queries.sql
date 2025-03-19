@@ -7,10 +7,12 @@ SELECT
 FROM 
   devices
 WHERE
-  brand = $1 OR state = $2 OR name = $3;
+  (brand = $1 OR $1 = '') AND
+  (state = $2 OR $2 = '') AND
+  (name = $3 OR $3 = '');
 
 -- name: InsertDevice :exec
-INSERT INTO devices (name, brand, state) VALUES ($1, $2, $3);
+INSERT INTO devices (name, brand) VALUES ($1, $2);
 
 -- name: DeleteDevice :exec
 DELETE FROM devices WHERE id = $1;

@@ -1,0 +1,159 @@
+basePath: /
+definitions:
+  handler.DeviceResponse:
+    properties:
+      brand:
+        type: string
+      creation_time:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      state:
+        type: string
+    type: object
+  queries.Device:
+    properties:
+      brand:
+        type: string
+      creation_time:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      state:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is a sample API to ESIM devices.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Devices API
+  version: "1.0"
+paths:
+  /devices:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of devices filtered by brand, state, or name
+      operationId: list-devices
+      parameters:
+      - description: Brand of the device
+        in: query
+        name: brand
+        type: string
+      - description: State of the device
+        in: query
+        name: state
+        type: string
+      - description: Name of the device
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/queries.Device'
+            type: array
+      summary: List devices
+      tags:
+      - devices
+    post:
+      consumes:
+      - application/json
+      description: Insert a new device into the database
+      operationId: insert-device
+      parameters:
+      - description: Device data
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/handler.DeviceResponse'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/queries.Device'
+      summary: Insert a new device into the database
+      tags:
+      - devices
+  /devices/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a device by its ID
+      operationId: delete-device
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Delete a device
+      tags:
+      - devices
+    get:
+      consumes:
+      - application/json
+      description: Get details of a device by its ID
+      operationId: get-device
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/queries.Device'
+      summary: Retrieve a device by ID
+      tags:
+      - devices
+    patch:
+      consumes:
+      - application/json
+      description: Update details of an existing device
+      operationId: update-device
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated device data
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/queries.Device'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/queries.Device'
+      summary: Update a device
+      tags:
+      - devices
+swagger: "2.0"

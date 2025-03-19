@@ -7,8 +7,6 @@ package queries
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const deleteDevice = `-- name: DeleteDevice :exec
@@ -38,17 +36,16 @@ func (q *Queries) GetDevice(ctx context.Context, db DBTX, id int32) (*Device, er
 }
 
 const insertDevice = `-- name: InsertDevice :exec
-INSERT INTO devices (name, brand, state) VALUES ($1, $2, $3)
+INSERT INTO devices (name, brand) VALUES ($1, $2)
 `
 
 type InsertDeviceParams struct {
-	Name  pgtype.Text `db:"name" json:"name"`
-	Brand pgtype.Text `db:"brand" json:"brand"`
-	State string      `db:"state" json:"state"`
+	Name  string `db:"name" json:"name,omitempty"`
+	Brand string `db:"brand" json:"brand,omitempty"`
 }
 
 func (q *Queries) InsertDevice(ctx context.Context, db DBTX, arg *InsertDeviceParams) error {
-	_, err := db.Exec(ctx, insertDevice, arg.Name, arg.Brand, arg.State)
+	_, err := db.Exec(ctx, insertDevice, arg.Name, arg.Brand)
 	return err
 }
 
@@ -58,13 +55,15 @@ SELECT
 FROM 
   devices
 WHERE
-  brand = $1 OR state = $2 OR name = $3
+  (brand = $1 OR $1 = '') AND
+  (state = $2 OR $2 = '') AND
+  (name = $3 OR $3 = '')
 `
 
 type ListDevicesParams struct {
-	Brand pgtype.Text `db:"brand" json:"brand"`
-	State string      `db:"state" json:"state"`
-	Name  pgtype.Text `db:"name" json:"name"`
+	Brand string `db:"brand" json:"brand,omitempty"`
+	State string `db:"state" json:"state,omitempty"`
+	Name  string `db:"name" json:"name,omitempty"`
 }
 
 func (q *Queries) ListDevices(ctx context.Context, db DBTX, arg *ListDevicesParams) ([]*Device, error) {
@@ -98,10 +97,10 @@ UPDATE devices SET name = $2, brand = $3, state = $4 WHERE id = $1
 `
 
 type UpdateDeviceParams struct {
-	ID    int32       `db:"id" json:"id"`
-	Name  pgtype.Text `db:"name" json:"name"`
-	Brand pgtype.Text `db:"brand" json:"brand"`
-	State string      `db:"state" json:"state"`
+	ID    int32  `db:"id" json:"id"`
+	Name  string `db:"name" json:"name,omitempty"`
+	Brand string `db:"brand" json:"brand,omitempty"`
+	State string `db:"state" json:"state,omitempty"`
 }
 
 func (q *Queries) UpdateDevice(ctx context.Context, db DBTX, arg *UpdateDeviceParams) error {

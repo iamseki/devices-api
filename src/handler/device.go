@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/iamseki/devices-api/src/domain"
 	"github.com/iamseki/devices-api/src/repository/queries"
 	"github.com/labstack/echo/v4"
 )
@@ -160,12 +161,13 @@ func (h *Handler) UpdateDevice(c echo.Context) error {
 		return err
 	}
 
-	if currentDevice.State == "IN_USE" && (device.Name != "" || device.Brand != "") {
-		return echo.NewHTTPError(http.StatusBadRequest, "Device in use")
-	}
-	fmt.Println(device)
-	if !device.CreationTime.IsZero() {
-		return echo.NewHTTPError(http.StatusBadRequest, "Cannot update creation time")
+	if err := domain.ValidateUpdateDevice(&domain.UpdateDeviceParams{
+		Name:         device.Name,
+		Brand:        device.Brand,
+		State:        device.State,
+		CreationTime: device.CreationTime,
+	}, currentDevice.State); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	err = h.Repository.Queries.UpdateDevice(ctx, conn, &queries.UpdateDeviceParams{Name: device.Name, Brand: device.Brand, State: device.State, ID: int32(id)})
@@ -204,8 +206,9 @@ func (h *Handler) DeleteDevice(c echo.Context) error {
 		return err
 	}
 
-	if device.State == "IN_USE" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Device in use")
+	err = domain.ValidateDeleteDevice(device.State)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	err = h.Repository.Queries.DeleteDevice(ctx, conn, int32(id))

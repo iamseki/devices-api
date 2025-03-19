@@ -15,8 +15,10 @@ import (
 // @Tags devices
 // @Accept json
 // @Produce json
-// @Param device body DeviceResponse true "Device data"
+// @Param device body queries.Device true "Device data"
 // @Success 201 {object} queries.Device
+// @Failure 400 {string} string
+// @Failure 500 {string} string
 // @Router /devices [POST]
 func (h *Handler) InsertDevice(c echo.Context) error {
 	device := &queries.Device{}
@@ -48,6 +50,8 @@ func (h *Handler) InsertDevice(c echo.Context) error {
 // @Produce json
 // @Param id path int true "Device ID"
 // @Success 200 {object} queries.Device
+// @Failure 404 {string} string "Device not found"
+// @Failure 500 {string} string "Device not found"
 // @Router /devices/{id} [get]
 func (h *Handler) GetDevice(c echo.Context) error {
 	ctx := c.Request().Context()
@@ -63,6 +67,11 @@ func (h *Handler) GetDevice(c echo.Context) error {
 
 	device, err := h.Repository.Queries.GetDevice(ctx, conn, int32(id))
 	if err != nil {
+		// something is wrong with pgx and we cant check pgx.ErrNorows
+		if err.Error() == "no rows in result set" {
+			return echo.NewHTTPError(http.StatusNotFound, "Device not found")
+		}
+
 		return err
 	}
 
@@ -79,6 +88,7 @@ func (h *Handler) GetDevice(c echo.Context) error {
 // @Param state query string false "State of the device"
 // @Param name query string false "Name of the device"
 // @Success 200 {array} queries.Device
+// @Failure 500 {string} string
 // @Router /devices [get]
 func (h *Handler) ListDevice(c echo.Context) error {
 	ctx := c.Request().Context()
@@ -124,6 +134,8 @@ func (h *Handler) ListDevice(c echo.Context) error {
 // @Param id path int true "Device ID"
 // @Param device body queries.Device true "Updated device data"
 // @Success 200 {object} queries.Device
+// @Failure 400 {string} string
+// @Failure 500 {string} string
 // @Router /devices/{id} [patch]
 func (h *Handler) UpdateDevice(c echo.Context) error {
 	ctx := c.Request().Context()
@@ -172,6 +184,7 @@ func (h *Handler) UpdateDevice(c echo.Context) error {
 // @Produce json
 // @Param id path int true "Device ID"
 // @Success 204 "No Content"
+// @Failure 500 {string} string
 // @Router /devices/{id} [delete]
 func (h *Handler) DeleteDevice(c echo.Context) error {
 	ctx := c.Request().Context()

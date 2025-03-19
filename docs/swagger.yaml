@@ -1,18 +1,5 @@
 basePath: /
 definitions:
-  handler.DeviceResponse:
-    properties:
-      brand:
-        type: string
-      creation_time:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      state:
-        type: string
-    type: object
   queries.Device:
     properties:
       brand:
@@ -63,6 +50,10 @@ paths:
             items:
               $ref: '#/definitions/queries.Device'
             type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
       summary: List devices
       tags:
       - devices
@@ -77,7 +68,7 @@ paths:
         name: device
         required: true
         schema:
-          $ref: '#/definitions/handler.DeviceResponse'
+          $ref: '#/definitions/queries.Device'
       produces:
       - application/json
       responses:
@@ -85,6 +76,14 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/queries.Device'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
       summary: Insert a new device into the database
       tags:
       - devices
@@ -105,6 +104,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
       summary: Delete a device
       tags:
       - devices
@@ -126,6 +129,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/queries.Device'
+        "404":
+          description: Device not found
+          schema:
+            type: string
+        "500":
+          description: Device not found
+          schema:
+            type: string
       summary: Retrieve a device by ID
       tags:
       - devices
@@ -153,6 +164,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/queries.Device'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
       summary: Update a device
       tags:
       - devices

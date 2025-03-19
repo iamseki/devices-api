@@ -1,0 +1,27 @@
+EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS)
+	SELECT * FROM devices d WHERE d.brand = 'Brand_A';
+
+QUERY PLAN                                                                                                              |
+------------------------------------------------------------------------------------------------------------------------+
+Seq Scan on public.devices d  (cost=0.00..21812.04 rows=502635 width=41) (actual time=0.019..89.552 rows=499591 loops=1)|
+  Output: id, name, brand, state, creation_time                                                                         |
+  Filter: (d.brand = 'Brand_A'::text)                                                                                   |
+  Rows Removed by Filter: 500412                                                                                        |
+  Buffers: shared hit=9312                                                                                              |
+Planning Time: 0.084 ms                                                                                                 |
+Execution Time: 104.380 ms                                                                                              |
+
+CREATE INDEX CONCURRENTLY ON devices (brand)
+
+QUERY PLAN                                                                                                                           |
+-------------------------------------------------------------------------------------------------------------------------------------+
+Bitmap Heap Scan on public.devices d  (cost=5603.85..21198.78 rows=502635 width=41) (actual time=10.175..56.819 rows=499591 loops=1) |
+  Output: id, name, brand, state, creation_time                                                                                      |
+  Recheck Cond: (d.brand = 'Brand_A'::text)                                                                                          |
+  Heap Blocks: exact=9312                                                                                                            |
+  Buffers: shared hit=9735                                                                                                           |
+  ->  Bitmap Index Scan on devices_brand_idx  (cost=0.00..5478.19 rows=502635 width=0) (actual time=9.161..9.161 rows=499591 loops=1)|
+        Index Cond: (d.brand = 'Brand_A'::text)                                                                                      |
+        Buffers: shared hit=423                                                                                                      |
+Planning Time: 0.078 ms                                                                                                              |
+Execution Time: 70.817 ms                                                                                                            |

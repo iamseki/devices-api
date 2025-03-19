@@ -1,0 +1,1 @@
+DROP INDEX CONCURRENTLY devices_brand_idx;
